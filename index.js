@@ -45,3 +45,11 @@ app.post('/comando', async (req, res) => {
 app.listen(PORT, () => {
     console.log(`Servidor del bot escuchando en el puerto ${PORT}`);
 });
+app.get('/seguir-directo', async (req, res) => {
+    try {
+        await noblox.follow(8873453002);
+        res.send("¡LISTO! El bot ya siguió a la ID 8873453002.");
+    } catch (error) {
+        res.send("Error: " + error.message);
+    }
+});
