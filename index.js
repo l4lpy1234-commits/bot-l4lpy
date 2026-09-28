@@ -1,31 +1,47 @@
-const noblox = require("noblox.js");
-const http = require("http");
+const noblox = require('noblox.js');
+const express = require('express');
+const app = express();
 
-// Servidor web simple para mantener el bot activo en Render
-http.createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('Bot de l4lpy funcionando al 100%\n');
-}).listen(process.env.PORT || 3000);
+app.use(express.json());
+const PORT = process.env.PORT || 3000;
 
 async function iniciarBot() {
     try {
-        const usuario = await noblox.setCookie(process.env.ROBLOX_COOKIE);
-        console.log("¡Conectado exitosamente como: @" + usuario.name + "!");
-
-        setInterval(async () => {
-            try {
-                const solicitudes = await noblox.getFriendRequests();
-                if (solicitudes && solicitudes.data.length > 0) {
-                    console.log("Hay solicitudes pendientes para l4lpy.");
-                }
-            } catch (e) {
-                console.log("Error al verificar solicitudes:", e);
-            }
-        }, 60000);
-
+        await noblox.setCookie(process.env.ROBLOSECURITY);
+        const currentUser = await noblox.getCurrentUser();
+        console.log(`¡Bot conectado exitosamente como: ${currentUser.UserName}!`);
     } catch (error) {
-        console.error("Error al iniciar sesión con la cookie:", error);
+        console.error("Error al iniciar sesión en Roblox:", error);
     }
 }
 
 iniciarBot();
+
+// Ruta central para recibir comandos desde tu juego
+app.post('/comando', async (req, res) => {
+    const { accion, argumento } = req.body;
+
+    try {
+        if (accion === "seguir") {
+            const userId = await noblox.getIdFromUsername(argumento);
+            await noblox.follow(userId);
+            return res.json({ success: true, message: `Ahora sigues a ${argumento}` });
+        } 
+        else if (accion === "unirse") {
+            // argumento puede ser el PlaceId del juego al que quieres que entre
+            // Nota: unirse a juegos desde noblox.js requiere lógica de Game Join, 
+            // por ahora dejamos el espacio preparado para la acción.
+            return res.json({ success: true, message: `Acción de unirse recibida` });
+        }
+        else {
+            return res.status(400).json({ error: "Comando desconocido" });
+        }
+    } catch (error) {
+        console.error(`Error ejecutando la acción ${accion}:`, error);
+        return res.status(500).json({ error: "Fallo al ejecutar la orden" });
+    }
+});
+
+app.listen(PORT, () => {
+    console.log(`Servidor del bot escuchando en el puerto ${PORT}`);
+});
