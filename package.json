@@ -1,0 +1,12 @@
+{
+  "name": "bot-l4lpy",
+  "version": "1.0.0",
+  "description": "Bot de control para l4lpy",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "noblox.js": "^4.20.0"
+  }
+}
